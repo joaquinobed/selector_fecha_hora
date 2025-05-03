@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selector de Fecha y Hora</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .calendario-dias td {
+      cursor: pointer;
+      text-align: center;
+      vertical-align: middle;
+      height: 40px;
+    }
+
+    .calendario-dias td:hover:not(.text-muted) {
+      background-color: #f0f8ff;
+    }
+
+    .dia-seleccionado {
+      background-color: #007bff !important;
+      color: white !important;
+      font-weight: bold;
+      border-radius: 50%;
+    }
+
+    .dia-actual {
+      border: 2px solid #007bff;
+      border-radius: 50%;
+    }
+
+    .card-header h5 {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Elegir fecha y hora</h5>
+        <div>
+          <button id="anterior-mes" class="btn btn-sm btn-outline-secondary">&lt;</button>
+          <span id="mes-anio-actual" class="mx-2 font-weight-bold"></span>
+          <button id="siguiente-mes" class="btn btn-sm btn-outline-secondary">&gt;</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-7 mb-3">
+            <table class="table table-bordered table-sm calendario-dias">
+              <thead class="thead-light text-center">
+                <tr>
+                  <th>L</th><th>M</th><th>X</th><th>J</th><th>V</th><th>S</th><th>D</th>
+                </tr>
+              </thead>
+              <tbody id="calendario-dias"></tbody>
+            </table>
+          </div>
+          <div class="col-md-5">
+            <div class="form-group">
+              <label for="fecha-seleccionada">Fecha seleccionada:</label>
+              <input type="text" class="form-control" id="fecha-seleccionada" readonly>
+            </div>
+            <div class="form-group">
+              <label for="hora-seleccionada">Hora:</label>
+              <input type="time" class="form-control" id="hora-seleccionada" value="18:30">
+            </div>
+            <div class="d-flex justify-content-end mt-4">
+              <button class="btn btn-secondary mr-2">Cancelar</button>
+              <button class="btn btn-primary">Programar envío</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const mesAnioActual = document.getElementById('mes-anio-actual');
+      const calendarioDias = document.getElementById('calendario-dias');
+      const anteriorMesBtn = document.getElementById('anterior-mes');
+      const siguienteMesBtn = document.getElementById('siguiente-mes');
+      const fechaSeleccionadaInput = document.getElementById('fecha-seleccionada');
+
+      let fechaActual = new Date();
+      let diaSeleccionado = new Date();
+
+      const nombreMeses = ["enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+
+      function mostrarCalendario(anio, mes) {
+        const primerDiaMes = new Date(anio, mes, 1).getDay();
+        const ultimoDiaMes = new Date(anio, mes + 1, 0).getDate();
+        const ultimoDiaMesAnterior = new Date(anio, mes, 0).getDate();
+
+        mesAnioActual.textContent = `${nombreMeses[mes]} de ${anio}`;
+
+        let diasHTML = '<tr>';
+        let primerDiaSemana = primerDiaMes === 0 ? 7 : primerDiaMes;
+        let diasPrevios = primerDiaSemana - 1;
+
+        // Días del mes anterior (en gris)
+        for (let i = 0; i < diasPrevios; i++) {
+          diasHTML += `<td class="text-muted">${ultimoDiaMesAnterior - diasPrevios + 1 + i}</td>`;
+        }
+
+        // Días del mes actual
+        for (let i = 1; i <= ultimoDiaMes; i++) {
+          const fecha = new Date(anio, mes, i);
+          const esHoy = fecha.toDateString() === new Date().toDateString();
+          const esSeleccionado = diaSeleccionado && fecha.toDateString() === diaSeleccionado.toDateString();
+
+          diasHTML += `<td class="${esHoy ? 'dia-actual' : ''} ${esSeleccionado ? 'dia-seleccionado' : ''}" data-dia="${i}">${i}</td>`;
+
+          if ((diasPrevios + i) % 7 === 0) diasHTML += '</tr><tr>';
+        }
+
+        // Días siguientes del mes siguiente (en gris)
+        const totalCeldas = diasPrevios + ultimoDiaMes;
+        const diasSiguientes = (7 - (totalCeldas % 7)) % 7;
+
+        for (let i = 1; i <= diasSiguientes; i++) {
+          diasHTML += `<td class="text-muted">${i}</td>`;
+        }
+
+        diasHTML += '</tr>';
+        calendarioDias.innerHTML = diasHTML;
+      }
+
+      function seleccionarDia(event) {
+        const td = event.target;
+        if (td.tagName === 'TD' && td.dataset.dia && !td.classList.contains('text-muted')) {
+          const dia = parseInt(td.dataset.dia);
+          diaSeleccionado = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), dia);
+          fechaSeleccionadaInput.value = `${diaSeleccionado.getDate()} ${nombreMeses[diaSeleccionado.getMonth()]} ${diaSeleccionado.getFullYear()}`;
+          mostrarCalendario(fechaActual.getFullYear(), fechaActual.getMonth());
+        }
+      }
+
+      function cambiarMes(direccion) {
+        fechaActual.setMonth(fechaActual.getMonth() + (direccion === 'siguiente' ? 1 : -1));
+        mostrarCalendario(fechaActual.getFullYear(), fechaActual.getMonth());
+      }
+
+      anteriorMesBtn.addEventListener('click', () => cambiarMes('anterior'));
+      siguienteMesBtn.addEventListener('click', () => cambiarMes('siguiente'));
+      calendarioDias.addEventListener('click', seleccionarDia);
+
+      mostrarCalendario(fechaActual.getFullYear(), fechaActual.getMonth());
+      fechaSeleccionadaInput.value = `${diaSeleccionado.getDate()} ${nombreMeses[diaSeleccionado.getMonth()]} ${diaSeleccionado.getFullYear()}`;
+    });
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
