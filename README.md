@@ -15,8 +15,8 @@ Este componente es un selector interactivo de fecha y hora desarrollado con HTML
 
 Este componente es ideal para integrarlo en sistemas de reservas, planificación de eventos, programaciones de envío de correos o cualquier aplicación donde se requiera que el usuario seleccione una fecha y hora específicas.
 
-![Vista previa del selector de fecha y hora](demo.png)
+
 
 <p align="center">
-  <img src="demo.png" alt="Vista previa del selector de fecha y hora">
+  <img src="demo.PNG" alt="Vista previa del selector de fecha y hora">
 </p>
