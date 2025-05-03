@@ -15,4 +15,4 @@ Este componente es un selector interactivo de fecha y hora desarrollado con HTML
 
 Este componente es ideal para integrarlo en sistemas de reservas, planificación de eventos, programaciones de envío de correos o cualquier aplicación donde se requiera que el usuario seleccione una fecha y hora específicas.
 
-> ¿Te gustaría una versión optimizada para Bootstrap 5 o con soporte de idioma adicional?
+
